@@ -3,55 +3,54 @@ package br.com.igorbag.githubsearch.ui.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import br.com.igorbag.githubsearch.R
 import br.com.igorbag.githubsearch.domain.Repository
 
-class RepositoryAdapter(private val repositories: List<Repository>) :
-    RecyclerView.Adapter<RepositoryAdapter.ViewHolder>() {
 
-    var carItemLister: (Repository) -> Unit = {}
-    var btnShareLister: (Repository) -> Unit = {}
+class RepositoryAdapter(
+    private var repositories: List<Repository>,
+    private val onItemClick: (String) -> Unit,
+    private val onShareClick: (String) -> Unit
+) : RecyclerView.Adapter<RepositoryAdapter.RepositoryViewHolder>() {
 
-    // Cria uma nova view
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.repository_item, parent, false)
-        return ViewHolder(view)
+    // ViewHolder que o Adapter usa
+    inner class RepositoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+        private val txtName: TextView = itemView.findViewById(R.id.txtRepoName)
+        private val btnShare: ImageButton = itemView.findViewById(R.id.btnShareRepo)
+
+        fun bind(repository: Repository) {
+            txtName.text = repository.name
+
+            // clique no item abre o navegador
+            itemView.setOnClickListener {
+                onItemClick(repository.htmlUrl)
+            }
+
+            // clique no botão share compartilha o link
+            btnShare.setOnClickListener {
+                onShareClick(repository.htmlUrl)
+            }
+        }
     }
 
-    // Pega o conteudo da view e troca pela informacao de item de uma lista
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        //@TODO 8 -  Realizar o bind do viewHolder
-        //Exemplo de Bind
-        //  holder.preco.text = repositories[position].atributo
-
-        // Exemplo de click no item
-        //holder.itemView.setOnClickListener {
-        // carItemLister(repositores[position])
-        //}
-
-        // Exemplo de click no btn Share
-        //holder.favorito.setOnClickListener {
-        //    btnShareLister(repositores[position])
-        //}
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RepositoryViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_repository, parent, false)
+        return RepositoryViewHolder(view)
     }
 
-    // Pega a quantidade de repositorios da lista
-    //@TODO 9 - realizar a contagem da lista
-    override fun getItemCount(): Int = 0
+    override fun onBindViewHolder(holder: RepositoryViewHolder, position: Int) {
+        holder.bind(repositories[position])
+    }
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        //@TODO 10 - Implementar o ViewHolder para os repositorios
-        //Exemplo:
-        //val atributo: TextView
+    override fun getItemCount(): Int = repositories.size
 
-        //init {
-        //    view.apply {
-        //        atributo = findViewById(R.id.item_view)
-        //    }
-
+    fun submitList(newList: List<Repository>) {
+        repositories = newList
+        notifyDataSetChanged()
     }
 }
-
-
